@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Matrix Transformation</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="vector.js"></script>
+        <script src="transformationmatrix.js"></script>
+        <script>
+            var canvas;
+            var context;
+            var camera;
+            var matrix;
+            var dirs = [false, false, false, false];
+            var player = null;
+
+            var map = [
+                1,1,1,1,1,1,1,1,1,1,
+                1,0,0,0,0,0,0,0,0,1,
+                1,0,1,0,0,0,0,0,0,1,
+                1,0,0,0,0,0,1,0,0,1,
+                1,0,0,0,1,0,0,0,0,1,
+                1,0,0,0,1,0,0,1,0,1,
+                1,0,0,0,1,0,0,1,0,1,
+                1,0,0,0,0,0,0,0,0,1,
+                1,1,1,1,1,1,1,1,1,1
+            ];
+  
+            var tileSize = 100;
+            var width = 10;
+            var height = 9;
+            var tiles = [];
+            var velocity = new Vector(0, 0);
+            
+            var radians = 0;
+            var scale = 1;
+            var shearX = 0;
+            var shearY = 0;
+            
+            var clockwiseRotationSlider; 
+            var scaleSlider;
+            var reflectCheckbox;
+            var shearXSlider;
+            var shearYSlider;
+
+             window.onload = function() {
+    
+                var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+                window.requestAnimationFrame = requestAnimationFrame;
+                window.requestAnimationFrame(update);
+                
+                clockwiseRotationSlider = document.getElementById('rotation');
+                scaleSlider = document.getElementById('scale');
+                reflectCheckbox = document.getElementById('reflect');
+                shearXSlider = document.getElementById('shearX');
+                shearYSlider = document.getElementById('shearY');
+                
+                canvas = document.getElementById("canvas");
+                context = canvas.getContext("2d");
+                player = new Player();
+                document.onkeydown = onKeyDown;
+                document.onkeyup = onKeyUp;
+
+                camera = new Vector(0, 0);
+                matrix = new TransformationMatrix();
+                
+                for (var a = 0; a < width * height; a++) {
+                    var tile = new Tile(a % width, Math.floor(a / width), tileSize, map[a] === 1);
+                    tiles[a] = tile;
+                } 
+                
+                var halfX = canvas.width / 2;
+                var halfY = canvas.height / 2;
+                var currX = 3;
+                var currY = 4;
+                var offsetX = halfX - (currX * tileSize) - tileSize / 2;
+                var offsetY = halfY - (currY * tileSize) - tileSize / 2;
+                
+                camera.x = offsetX;
+                camera.y = offsetY;
+                
+            };
+            
+            var prevTime = 0;
+            function update(time) {
+                time = time / 1000;
+                var deltatime = time - prevTime;
+                render(deltatime);
+                prevTime = time;
+                window.requestAnimationFrame(update);
+            }
+            
+            
+            function render(deltatime) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.imageSmoothingEnabled = false;
+                
+                updateValues();
+                
+                matrix.setRotation(radians);
+                matrix.setScale(scale);
+                matrix.setShearX(shearX);
+                matrix.setShearY(shearY);
+                
+                for (let tile of tiles) {
+                    tile.update(deltatime);
+                    tile.render(context);
+                }
+ 
+                player.render(context);
+                player.update(deltatime);
+                
+                if (dirs[0]) {
+                    velocity.x = -tileSize * 2;
+                }
+                
+                if (dirs[1]) {
+                    velocity.x = tileSize * 2;
+                }
+                
+                if (dirs[2]) {
+                    velocity.y = -tileSize * 2;
+                }
+                
+                if (dirs[3]) {
+                    velocity.y = tileSize * 2;
+                }
+            }
+ 
+ 
+            class Tile {
+                
+                constructor(x, y, size, walkable) {
+                    this.x = x;
+                    this.y = y;
+                    this.size = size;
+                    this.walkable = walkable;
+                    
+                    x = x * this.size;
+                    y = y * this.size;
+                    
+                    this.leftUpVector = new Vector(x, y);
+                    this.rightUpVector = new Vector(x + this.size, y);
+                    this.leftDownVector = new Vector(x, y + this.size);
+                    this.rightDownVector = new Vector(x + this.size, y + this.size);
+                }
+                
+                update(deltatime) {
+                    
+                }
+ 
+                collide(player) {
+                    var width = player.size / 2 + this.size / 2;
+                    var height = width;
+                    var diffX = Math.abs((this.x * this.size + this.size / 2) - player.getX());
+                    var diffY = Math.abs((this.y * this.size + this.size / 2) - player.getY());
+                    return diffX <= width && diffY <= height;
+                }
+                
+                render(context) {
+ 
+                    var cameraVector = matrix.rotate(camera.x, camera.y);
+                    cameraVector = matrix.scale(cameraVector.x, cameraVector.y);
+                    cameraVector = matrix.shearX(cameraVector.x, cameraVector.y);
+                    cameraVector = matrix.shearY(cameraVector.x, cameraVector.y);
+                    
+                    var halfX = canvas.width / 2;
+                    var halfY = canvas.height / 2;
+
+                    // Transformations from origin
+                    var leftUpVector = matrix.rotate(this.leftUpVector.x - halfX, this.leftUpVector.y - halfY);
+                    leftUpVector = matrix.scale(leftUpVector.x, leftUpVector.y);
+                    leftUpVector = matrix.shearX(leftUpVector.x, leftUpVector.y);
+                    leftUpVector = matrix.shearY(leftUpVector.x, leftUpVector.y);
+
+                    var rightUpVector = matrix.rotate(this.rightUpVector.x - halfX, this.rightUpVector.y - halfY);
+                    rightUpVector = matrix.scale(rightUpVector.x, rightUpVector.y);
+                    rightUpVector = matrix.shearX(rightUpVector.x, rightUpVector.y);
+                    rightUpVector = matrix.shearY(rightUpVector.x, rightUpVector.y);
+
+                    var rightDownVector = matrix.rotate(this.rightDownVector.x - halfX, this.rightDownVector.y - halfY);
+                    rightDownVector = matrix.scale(rightDownVector.x, rightDownVector.y);
+                    rightDownVector = matrix.shearX(rightDownVector.x, rightDownVector.y);
+                    rightDownVector = matrix.shearY(rightDownVector.x, rightDownVector.y);
+
+                    var leftDownVector = matrix.rotate(this.leftDownVector.x - halfX, this.leftDownVector.y - halfY);
+                    leftDownVector = matrix.scale(leftDownVector.x, leftDownVector.y);
+                    leftDownVector = matrix.shearX(leftDownVector.x, leftDownVector.y);
+                    leftDownVector = matrix.shearY(leftDownVector.x, leftDownVector.y);
+                    
+                    if (reflectCheckbox.checked) {
+                        leftUpVector = matrix.reflect(leftUpVector.x, leftUpVector.y);
+                        rightUpVector = matrix.reflect(rightUpVector.x, rightUpVector.y);
+                        rightDownVector = matrix.reflect(rightDownVector.x, rightDownVector.y);
+                        leftDownVector = matrix.reflect(leftDownVector.x, leftDownVector.y);
+                        cameraVector = matrix.reflect(cameraVector.x, cameraVector.y);
+                    }
+                    
+                    context.beginPath();
+                    context.moveTo(halfX + leftUpVector.x + cameraVector.x, halfY + leftUpVector.y + cameraVector.y);
+                    context.lineTo(halfX + rightUpVector.x + cameraVector.x, halfY + rightUpVector.y + cameraVector.y);
+                    context.lineTo(halfX + rightDownVector.x + cameraVector.x, halfY + rightDownVector.y + cameraVector.y);
+                    context.lineTo(halfX + leftDownVector.x + cameraVector.x, halfY + leftDownVector.y + cameraVector.y);
+                    context.lineTo(halfX + leftUpVector.x + cameraVector.x, halfY + leftUpVector.y + cameraVector.y);
+                    context.stroke();
+                                      
+                    if (this.walkable) {
+                        context.fillStyle = "#000";
+                    } else {
+                        context.fillStyle = "#fff"; 
+                    }
+                    context.fill();
+                }
+            }
+            
+            
+        function onKeyDown(event) {
+            var evt = event || window.event;
+ 
+            //console.log(evt.keyCode);
+            if (evt.keyCode === 65) { // left
+                dirs[1] = true;
+            }
+            if (evt.keyCode === 68) { // right
+                dirs[0] = true;
+            }
+            if (evt.keyCode === 87) { // up
+                dirs[3] = true;
+            }
+            if (evt.keyCode === 83) { // down
+                dirs[2] = true;
+            }
+        }
+    
+        function onKeyUp(event) {
+            var evt = event || window.event;
+            if (evt.keyCode === 65) { // left
+                dirs[1] = false;
+            }
+            if (evt.keyCode === 68) { // right
+                dirs[0] = false;
+            }
+            if (evt.keyCode === 87) { // up
+                dirs[3] = false;
+            }
+            if (evt.keyCode === 83) { // down
+                dirs[2] = false;
+            }
+        }
+ 
+        class Player {
+            
+            constructor() {
+                this.vectorMoves = [[0, 0], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.size = tileSize * 0.5;
+                this.leftUp = new Vector(this.x - this.size / 2, this.y - this.size / 2);
+                this.rightUp = new Vector(this.x + this.size / 2, this.y - this.size / 2);
+                this.rightDown = new Vector(this.x + this.size / 2, this.y + this.size / 2);
+                this.leftDown = new Vector(this.x - this.size / 2, this.y + this.size / 2);
+            }
+            
+            update(deltatime) {
+                var halfX = this.x;
+                var halfY = this.y;
+ 
+                var currX = Math.floor(((halfX - camera.x) * scale) / (tileSize * scale));
+                var currY = Math.floor(((halfY - camera.y) * scale) / (tileSize * scale));
+                console.log(currX + "," + currY + "    " + this.getX() + "," + this.getY());
+                
+                var tmpX = camera.x;
+                camera.x += velocity.x * deltatime;
+                for (let vector of this.vectorMoves) {
+                    var newX = vector[0] + currX;
+                    var newY = vector[1] + currY;
+                    var index = newY * width + newX;
+                    if (index >= 0 && index < width * height) {
+                        if (tiles[index].walkable && tiles[index].collide(this)) {
+                            camera.x = tmpX;
+                            break;
+                        }
+                    }
+                }
+ 
+                var tmpY = camera.y;
+                camera.y += velocity.y * deltatime;
+                for (let vector of this.vectorMoves) {
+                    var newX = vector[0] + currX;
+                    var newY = vector[1] + currY;
+                    var index = newY * width + newX;
+                    if (index >= 0 && index < width * height) {
+                        if (tiles[index].walkable && tiles[index].collide(this)) {
+                            camera.y = tmpY;
+                            break;
+                        }
+                    }
+                }
+                
+                velocity.x *= 0.95;
+                velocity.y *= 0.95;
+            }
+            
+            render(context) {
+                
+                var halfX = this.x;
+                var halfY = this.y;
+                
+                // Transformations from origin
+                var leftUpVector = matrix.rotate(this.leftUp.x - halfX, this.leftUp.y - halfY);
+                leftUpVector = matrix.scale(leftUpVector.x, leftUpVector.y);
+                leftUpVector = matrix.shearX(leftUpVector.x, leftUpVector.y);
+                leftUpVector = matrix.shearY(leftUpVector.x, leftUpVector.y);
+                
+                var rightUpVector = matrix.rotate(this.rightUp.x - halfX, this.rightUp.y - halfY);
+                rightUpVector = matrix.scale(rightUpVector.x, rightUpVector.y);
+                rightUpVector = matrix.shearX(rightUpVector.x, rightUpVector.y);
+                rightUpVector = matrix.shearY(rightUpVector.x, rightUpVector.y);
+
+                var rightDownVector = matrix.rotate(this.rightDown.x - halfX, this.rightDown.y - halfY);
+                rightDownVector = matrix.scale(rightDownVector.x, rightDownVector.y);
+                rightDownVector = matrix.shearX(rightDownVector.x, rightDownVector.y);
+                rightDownVector = matrix.shearY(rightDownVector.x, rightDownVector.y);
+
+                var leftDownVector = matrix.rotate(this.leftDown.x - halfX, this.leftDown.y - halfY);
+                leftDownVector = matrix.scale(leftDownVector.x, leftDownVector.y);
+                leftDownVector = matrix.shearX(leftDownVector.x, leftDownVector.y);
+                leftDownVector = matrix.shearY(leftDownVector.x, leftDownVector.y);
+                
+                context.fillStyle = "red";
+                context.beginPath();
+                context.moveTo(halfX + leftUpVector.x, halfY + leftUpVector.y);
+                context.lineTo(halfX + rightUpVector.x, halfY + rightUpVector.y);
+                context.lineTo(halfX + rightDownVector.x, halfY + rightDownVector.y);
+                context.lineTo(halfX + leftDownVector.x, halfY + leftDownVector.y);
+                context.lineTo(halfX + leftUpVector.x, halfY + leftUpVector.y);
+                context.stroke();
+                context.fill();
+            }
+            
+            getX() {
+                return this.x - camera.x;
+            }
+            
+            getY() {
+                return this.y - camera.y;
+            }
+        }
+
+        function updateValues() {
+            var ratio = clockwiseRotationSlider.value / 100;
+            radians = Math.PI * 2 * ratio;
+            
+            ratio = scaleSlider.value / 100;
+            // 0.2 - 5 scale
+            scale = 0.2 + ratio * 4.8;
+            
+            ratio = shearXSlider.value / 100;
+            shearX = 5 * ratio;
+            
+            ratio = shearYSlider.value / 100;
+            shearY = 5 * ratio;
+        }
+        </script>
+    </head>
+    <body>
+        <canvas style="background-color: gray" id="canvas" width="600" height="600"></canvas>
+        <br />
+        <span>Rotation:</span>
+        <input type="range" min="0" max="100" value="0" id="rotation">
+        <br />
+        <span>Scale:</span>
+        <input type="range" min="0" max="100" value="16" id="scale">
+        <br />
+        <span>Reflect</span>
+        <input type="checkbox" id="reflect" />
+        <br />
+        <span>Shear X</span>
+        <input type="range" min="0" max="100" value="0" id="shearX">
+        <br />
+        <span>Shear Y</span>
+        <input type="range" min="0" max="100" value="0" id="shearY">
+    </body>
+</html>
