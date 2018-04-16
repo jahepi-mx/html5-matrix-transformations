@@ -111,7 +111,7 @@ and open the template in the editor.
                     tile.update(deltatime);
                     tile.render(context);
                 }
- 
+
                 player.render(context);
                 player.update(deltatime);
                 
@@ -131,8 +131,7 @@ and open the template in the editor.
                     velocity.y = tileSize * 2;
                 }
             }
- 
- 
+
             class Tile {
                 
                 constructor(x, y, size, walkable) {
@@ -153,7 +152,7 @@ and open the template in the editor.
                 update(deltatime) {
                     
                 }
- 
+
                 collide(player) {
                     var width = player.size / 2 + this.size / 2;
                     var height = width;
@@ -221,7 +220,6 @@ and open the template in the editor.
             
         function onKeyDown(event) {
             var evt = event || window.event;
- 
             //console.log(evt.keyCode);
             if (evt.keyCode === 65) { // left
                 dirs[1] = true;
@@ -252,7 +250,7 @@ and open the template in the editor.
                 dirs[2] = false;
             }
         }
- 
+
         class Player {
             
             constructor() {
@@ -269,7 +267,7 @@ and open the template in the editor.
             update(deltatime) {
                 var halfX = this.x;
                 var halfY = this.y;
- 
+
                 var currX = Math.floor(((halfX - camera.x) * scale) / (tileSize * scale));
                 var currY = Math.floor(((halfY - camera.y) * scale) / (tileSize * scale));
                 console.log(currX + "," + currY + "    " + this.getX() + "," + this.getY());
@@ -287,7 +285,7 @@ and open the template in the editor.
                         }
                     }
                 }
- 
+
                 var tmpY = camera.y;
                 camera.y += velocity.y * deltatime;
                 for (let vector of this.vectorMoves) {
