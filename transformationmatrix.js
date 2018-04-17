@@ -1,3 +1,5 @@
+let matrixInstance = null;
+
 class TransformationMatrix {
     
     constructor() {
@@ -72,6 +74,21 @@ class TransformationMatrix {
         this.rotationMatrix[3] = yy;
     }
     
+    setReflect(bool) {
+        /*
+            Matrix
+            [-1, 0] [x]
+            [0, -1] [y]
+         */
+        if (bool) {
+            this.reflectMatrix[0] = -1;
+            this.reflectMatrix[3] = -1;
+        } else {
+            this.reflectMatrix[0] = 1;
+            this.reflectMatrix[3] = 1;
+        }
+    }
+    
     rotate(x, y) {
         var newVector = new Vector();
         newVector.x = x * this.rotationMatrix[0] + y * this.rotationMatrix[1];
@@ -105,6 +122,13 @@ class TransformationMatrix {
         newVector.x = x * this.shearYMatrix[0] + y * this.shearYMatrix[1];
         newVector.y = x * this.shearYMatrix[2] + y * this.shearYMatrix[3];
         return newVector; 
+    }
+    
+    static getInstance() {
+        if (matrixInstance === null) {
+            matrixInstance = new TransformationMatrix();
+        }
+        return matrixInstance;
     }
 }
 
