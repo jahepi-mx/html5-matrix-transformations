@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="vector.js"></script>
+        <script>
+            var canvas;
+            var context;
+            var width = 600;
+            var height = 600;
+            var halfX = width / 2;
+            var halfY = height / 2;
+            var cube;
+            var radiansX = 0;
+            var radiansY = 0;
+            var radiansZ = 0;
+                
+            var xSlider;
+            var ySlider;
+            var zSlider;
+            
+            window.onload = function() {
+    
+                //var width = window.screen.width;
+                //var height = window.screen.height;
+                
+                canvas = document.getElementById("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                context = canvas.getContext("2d");
+                cube = new Cube();
+                
+                xSlider = document.getElementById('rotationX');
+                ySlider = document.getElementById('rotationY');
+                zSlider = document.getElementById('rotationZ');
+                
+                var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+                window.requestAnimationFrame = requestAnimationFrame;
+                window.requestAnimationFrame(update);
+            };
+            
+            var prevTime = 0;
+            function update(time) {
+                time = time / 1000;
+                var deltatime = time - prevTime;
+                render(deltatime);
+                prevTime = time;
+                window.requestAnimationFrame(update);
+            }
+            
+            function render(deltatime) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.imageSmoothingEnabled = false;
+                
+                var ratio = xSlider.value / 100;
+                setRotationX(Math.PI * 2 * ratio);
+                ratio = ySlider.value / 100;
+                setRotationY(Math.PI * 2 * ratio);
+                ratio = zSlider.value / 100;
+                setRotationZ(Math.PI * 2 * ratio);
+                
+                cube.render(context);
+            }
+            
+            class Cube {
+                
+                constructor() {
+                    this.upLeftFront = new Vector(-50, 50, 0);
+                    this.upRightFront = new Vector(50, 50, 0);
+                    this.downRightFront = new Vector(50, -50, 0);
+                    this.downLeftFront = new Vector(-50, -50, 0);
+                    
+                    
+                    this.upLeftBack = new Vector(-50, 50, 50);
+                    this.upRightBack = new Vector(50, 50, 50);
+                    this.downRightBack = new Vector(50, -50, 50);
+                    this.downLeftBack = new Vector(-50, -50, 50);
+                }
+                
+                
+                
+                render(context) {
+                    
+                    var upLeftFront = rotateX(this.upLeftFront.x, this.upLeftFront.y, this.upLeftFront.z);
+                    upLeftFront = rotateY(upLeftFront.x, upLeftFront.y, upLeftFront.z);
+                    upLeftFront = rotateZ(upLeftFront.x, upLeftFront.y, upLeftFront.z);
+                    
+                    var upRightFront = rotateX(this.upRightFront.x, this.upRightFront.y, this.upRightFront.z);
+                    upRightFront = rotateY(upRightFront.x, upRightFront.y, upRightFront.z);
+                    upRightFront = rotateZ(upRightFront.x, upRightFront.y, upRightFront.z);
+                    
+                    var downRightFront = rotateX(this.downRightFront.x, this.downRightFront.y, this.downRightFront.z);
+                    downRightFront = rotateY(downRightFront.x, downRightFront.y, downRightFront.z);
+                    downRightFront = rotateZ(downRightFront.x, downRightFront.y, downRightFront.z);
+                    
+                    var downLeftFront = rotateX(this.downLeftFront.x, this.downLeftFront.y, this.downLeftFront.z);
+                    downLeftFront = rotateY(downLeftFront.x, downLeftFront.y, downLeftFront.z);
+                    downLeftFront = rotateZ(downLeftFront.x, downLeftFront.y, downLeftFront.z);
+                    
+                    context.beginPath();
+                    var ratio = 300 / (300 + upLeftFront.z); 
+                    context.moveTo(halfX + upLeftFront.x * ratio, halfY - upLeftFront.y  * ratio);
+                    ratio = 300 / (300 + upRightFront.z); 
+                    context.lineTo(halfX + upRightFront.x * ratio, halfY - upRightFront.y * ratio);
+                    ratio = 300 / (300 + downRightFront.z); 
+                    context.lineTo(halfX + downRightFront.x * ratio, halfY - downRightFront.y * ratio);
+                    ratio = 300 / (300 + downLeftFront.z); 
+                    context.lineTo(halfX + downLeftFront.x * ratio, halfY - downLeftFront.y * ratio);
+                    ratio = 300 / (300 + upLeftFront.z); 
+                    context.lineTo(halfX + upLeftFront.x * ratio, halfY - upLeftFront.y * ratio);
+                    context.stroke();
+                    
+                    
+                    var upLeftBack = rotateX(this.upLeftBack.x, this.upLeftBack.y, this.upLeftBack.z);
+                    upLeftBack = rotateY(upLeftBack.x, upLeftBack.y, upLeftBack.z);
+                    upLeftBack = rotateZ(upLeftBack.x, upLeftBack.y, upLeftBack.z);
+                    
+                    var upRightBack = rotateX(this.upRightBack.x, this.upRightBack.y, this.upRightBack.z);
+                    upRightBack = rotateY(upRightBack.x, upRightBack.y, upRightBack.z);
+                    upRightBack = rotateZ(upRightBack.x, upRightBack.y, upRightBack.z);
+                    
+                    var downRightBack = rotateX(this.downRightBack.x, this.downRightBack.y, this.downRightBack.z);
+                    downRightBack = rotateY(downRightBack.x, downRightBack.y, downRightBack.z);
+                    downRightBack = rotateZ(downRightBack.x, downRightBack.y, downRightBack.z);
+                    
+                    var downLeftBack = rotateX(this.downLeftBack.x, this.downLeftBack.y, this.downLeftBack.z);
+                    downLeftBack = rotateY(downLeftBack.x, downLeftBack.y, downLeftBack.z);
+                    downLeftBack = rotateZ(downLeftBack.x, downLeftBack.y, downLeftBack.z);
+                    
+                    context.beginPath();
+                    ratio = 300 / (300 + upLeftBack.z); 
+                    context.moveTo(halfX + upLeftBack.x * ratio, halfY - upLeftBack.y  * ratio);
+                    ratio = 300 / (300 + upRightBack.z); 
+                    context.lineTo(halfX + upRightBack.x * ratio, halfY - upRightBack.y * ratio);
+                    ratio = 300 / (300 + downRightBack.z); 
+                    context.lineTo(halfX + downRightBack.x * ratio, halfY - downRightBack.y * ratio);
+                    ratio = 300 / (300 + downLeftBack.z); 
+                    context.lineTo(halfX + downLeftBack.x * ratio, halfY - downLeftBack.y * ratio);
+                    ratio = 300 / (300 + upLeftBack.z); 
+                    context.lineTo(halfX + upLeftBack.x * ratio, halfY - upLeftBack.y * ratio);
+                    context.stroke();
+                    
+                    context.beginPath();
+                    ratio = 300 / (300 + upLeftFront.z); 
+                    context.moveTo(halfX + upLeftFront.x * ratio, halfY - upLeftFront.y  * ratio);
+                    ratio = 300 / (300 + upLeftBack.z); 
+                    context.lineTo(halfX + upLeftBack.x * ratio, halfY - upLeftBack.y  * ratio);
+                    context.stroke();
+                    
+                    context.beginPath();
+                    ratio = 300 / (300 + upRightFront.z); 
+                    context.moveTo(halfX + upRightFront.x * ratio, halfY - upRightFront.y  * ratio);
+                    ratio = 300 / (300 + upRightBack.z); 
+                    context.lineTo(halfX + upRightBack.x * ratio, halfY - upRightBack.y  * ratio);
+                    context.stroke();
+                    
+                    context.beginPath();
+                    ratio = 300 / (300 + downRightFront.z); 
+                    context.moveTo(halfX + downRightFront.x * ratio, halfY - downRightFront.y  * ratio);
+                    ratio = 300 / (300 + downRightBack.z); 
+                    context.lineTo(halfX + downRightBack.x * ratio, halfY - downRightBack.y  * ratio);
+                    context.stroke();
+                    
+                    context.beginPath();
+                    ratio = 300 / (300 + downLeftFront.z); 
+                    context.moveTo(halfX + downLeftFront.x * ratio, halfY - downLeftFront.y  * ratio);
+                    ratio = 300 / (300 + downLeftBack.z); 
+                    context.lineTo(halfX + downLeftBack.x * ratio, halfY - downLeftBack.y  * ratio);
+                    context.stroke();
+                }
+            }
+            
+            var rotationMatrixX = [
+                1,           0,           0,
+                0, Math.cos(0), -Math.sin(0),
+                0, Math.sin(0),  Math.cos(0)
+            ];
+            
+            var rotationMatrixY = [
+                Math.cos(0),  0, Math.sin(0),
+                0,            1, 0,
+                -Math.sin(0), 0, Math.cos(0)
+            ];
+            
+            var rotationMatrixZ = [
+                Math.cos(0),  -Math.sin(0), 0,
+                Math.sin(0),   Math.cos(0), 0,
+                0,            0,            1
+            ];
+            
+            function setRotationX(radians) {
+                /*
+                    Matrix
+                    [1,   0,    0] [x]
+                    [0, cos, -sin] [y]
+                    [0, sin,  cos] [z]
+                 */
+                rotationMatrixX[4] = Math.cos(radians);
+                rotationMatrixX[5] = -Math.sin(radians);
+                rotationMatrixX[7] = Math.sin(radians);
+                rotationMatrixX[8] = Math.cos(radians);
+            }
+            
+            function rotateX(x, y, z) {
+                var newVector = new Vector();
+                newVector.x = x * rotationMatrixX[0] + y * rotationMatrixX[1] + z * rotationMatrixX[2];
+                newVector.y = x * rotationMatrixX[3] + y * rotationMatrixX[4] + z * rotationMatrixX[5];
+                newVector.z = x * rotationMatrixX[6] + y * rotationMatrixX[7] + z * rotationMatrixX[8];
+                return newVector; 
+            }
+            
+            function setRotationY(radians) {
+                /*
+                    Matrix
+                    [cos,  0,  sin] [x]
+                    [0,    1,    0] [y]
+                    [-sin, 0,  cos] [z]
+                 */
+                rotationMatrixY[0] = Math.cos(radians);
+                rotationMatrixY[2] = Math.sin(radians);
+                rotationMatrixY[6] = -Math.sin(radians);
+                rotationMatrixY[8] = Math.cos(radians);
+            }
+            
+            function rotateY(x, y, z) {
+                var newVector = new Vector();
+                newVector.x = x * rotationMatrixY[0] + y * rotationMatrixY[1] + z * rotationMatrixY[2];
+                newVector.y = x * rotationMatrixY[3] + y * rotationMatrixY[4] + z * rotationMatrixY[5];
+                newVector.z = x * rotationMatrixY[6] + y * rotationMatrixY[7] + z * rotationMatrixY[8];
+                return newVector; 
+            }
+            
+            function setRotationZ(radians) {
+                /*
+                    Matrix
+                    [cos,  -sin,  0] [x]
+                    [sin,   cos,  0] [y]
+                    [0,       0,  1] [z]
+                 */
+                rotationMatrixZ[0] = Math.cos(radians);
+                rotationMatrixZ[1] = -Math.sin(radians);
+                rotationMatrixZ[3] = Math.sin(radians);
+                rotationMatrixZ[4] = Math.cos(radians);
+            }
+            
+            function rotateZ(x, y, z) {
+                var newVector = new Vector();
+                newVector.x = x * rotationMatrixZ[0] + y * rotationMatrixZ[1] + z * rotationMatrixZ[2];
+                newVector.y = x * rotationMatrixZ[3] + y * rotationMatrixZ[4] + z * rotationMatrixZ[5];
+                newVector.z = x * rotationMatrixZ[6] + y * rotationMatrixZ[7] + z * rotationMatrixZ[8];
+                return newVector; 
+            }
+            
+            
+        </script>
+    </head>
+    <body>
+        <canvas style="background-color: gray" id="canvas"></canvas>
+        <br />
+        <span>Rotation X:</span>
+            <input type="range" min="0" max="100" value="0" id="rotationX">
+            <br />
+         <span>Rotation Y:</span>
+            <input type="range" min="0" max="100" value="0" id="rotationY">
+            <br />
+         <span>Rotation Z:</span>
+            <input type="range" min="0" max="100" value="0" id="rotationZ">
+            <br />
+    </body>
+</html>
