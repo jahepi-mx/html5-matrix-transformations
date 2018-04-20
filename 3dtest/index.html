@@ -178,21 +178,21 @@ and open the template in the editor.
             }
             
             var rotationMatrixX = [
-                1,           0,           0,
+                1,           0,                          0,
                 0, Math.cos(0),  Math.cos(0 + Math.PI / 2),
                 0, Math.sin(0),  Math.sin(0 + Math.PI / 2)
             ];
             
             var rotationMatrixY = [
                 Math.cos(0),  0, Math.cos(0 + Math.PI / 2),
-                0,            1, 0,
+                0,            1,                         0,
                 Math.sin(0),  0, Math.sin(0 + Math.PI / 2)
             ];
             
             var rotationMatrixZ = [
                 Math.cos(0),  Math.cos(0 + Math.PI / 2), 0,
                 Math.sin(0),  Math.sin(0 + Math.PI / 2), 0,
-                0,            0,            1
+                0,            0,                         1
             ];
             
             function setRotationX(radians) {
