@@ -198,33 +198,33 @@ and open the template in the editor.
             
             var rotationMatrixX = [
                 1,           0,           0,
-                0, Math.cos(0), -Math.sin(0),
-                0, Math.sin(0),  Math.cos(0)
+                0, Math.cos(0),  Math.cos(0 + Math.PI / 2),
+                0, Math.sin(0),  Math.sin(0 + Math.PI / 2)
             ];
             
             var rotationMatrixY = [
-                Math.cos(0),  0, Math.sin(0),
+                Math.cos(0),  0, Math.cos(0 + Math.PI / 2),
                 0,            1, 0,
-                -Math.sin(0), 0, Math.cos(0)
+                Math.sin(0),  0, Math.sin(0 + Math.PI / 2)
             ];
             
             var rotationMatrixZ = [
-                Math.cos(0),  -Math.sin(0), 0,
-                Math.sin(0),   Math.cos(0), 0,
+                Math.cos(0),  Math.cos(0 + Math.PI / 2), 0,
+                Math.sin(0),  Math.sin(0 + Math.PI / 2), 0,
                 0,            0,            1
             ];
             
             function setRotationX(radians) {
                 /*
                     Matrix
-                    [1,   0,    0] [x]
-                    [0, cos, -sin] [y]
-                    [0, sin,  cos] [z]
+                    [1,      0,               0] [x]
+                    [0, cos(0), cos(0 + PI / 2)] [y]
+                    [0, sin(0), sin(0 + PI / 2)] [z]
                  */
                 rotationMatrixX[4] = Math.cos(radians);
-                rotationMatrixX[5] = -Math.sin(radians);
+                rotationMatrixX[5] = Math.cos(radians + Math.PI / 2);
                 rotationMatrixX[7] = Math.sin(radians);
-                rotationMatrixX[8] = Math.cos(radians);
+                rotationMatrixX[8] = Math.sin(radians + Math.PI / 2);
             }
             
             function rotateX(x, y, z) {
@@ -238,14 +238,14 @@ and open the template in the editor.
             function setRotationY(radians) {
                 /*
                     Matrix
-                    [cos,  0,  sin] [x]
-                    [0,    1,    0] [y]
-                    [-sin, 0,  cos] [z]
+                    [cos(0),  0,  cos(0 + PI / 2)] [x]
+                    [0,       1,                0] [y]
+                    [sin(0),  0,  sin(0 + PI / 2)] [z]
                  */
                 rotationMatrixY[0] = Math.cos(radians);
-                rotationMatrixY[2] = Math.sin(radians);
-                rotationMatrixY[6] = -Math.sin(radians);
-                rotationMatrixY[8] = Math.cos(radians);
+                rotationMatrixY[2] = Math.cos(radians + Math.PI / 2);
+                rotationMatrixY[6] = Math.sin(radians);
+                rotationMatrixY[8] = Math.sin(radians + Math.PI / 2);
             }
             
             function rotateY(x, y, z) {
@@ -259,14 +259,14 @@ and open the template in the editor.
             function setRotationZ(radians) {
                 /*
                     Matrix
-                    [cos,  -sin,  0] [x]
-                    [sin,   cos,  0] [y]
-                    [0,       0,  1] [z]
+                    [cos(0),  cos(0 + PI / 2),  0] [x]
+                    [sin(0),  sin(0 + PI / 2),  0] [y]
+                    [0,       0,                1] [z]
                  */
                 rotationMatrixZ[0] = Math.cos(radians);
-                rotationMatrixZ[1] = -Math.sin(radians);
+                rotationMatrixZ[1] = Math.cos(radians + Math.PI / 2);
                 rotationMatrixZ[3] = Math.sin(radians);
-                rotationMatrixZ[4] = Math.cos(radians);
+                rotationMatrixZ[4] = Math.sin(radians + Math.PI / 2);
             }
             
             function rotateZ(x, y, z) {
