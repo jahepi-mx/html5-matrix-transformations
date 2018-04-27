@@ -9,6 +9,9 @@ and open the template in the editor.
         <title>Matrix Transformation</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style type="text/css">
+            @font-face { font-family: 'joystix'; src: url('PixelMYZ.ttf'); }
+        </style>
         <script src="vector.js"></script>
         <script src="camera.js"></script>
         <script src="config.js"></script>
@@ -50,13 +53,13 @@ and open the template in the editor.
 
             window.onload = function() {
     
-                var width = window.screen.width;
-                var height = window.screen.height;
+                var width = window.innerWidth;
+                var height = window.innerHeight;
                 
                 config.mapWidth = 10;
                 config.mapHeight = 9;
-                config.canvasWidth = width * 0.7;
-                config.canvasHeight = height * 0.8;
+                config.canvasWidth = width * 0.9;
+                config.canvasHeight = height * 0.6;
                 config.tileSize = config.canvasWidth / 6;
                 
                 var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -170,6 +173,12 @@ and open the template in the editor.
             }
         </script>
         <style type="text/css">
+            body * {
+                font-family: joystix;
+                font-size: 1.15em;
+                padding: 0;
+                margin: 0;
+            }
             body {
                 background: #444;
                 color: white;
@@ -185,33 +194,34 @@ and open the template in the editor.
         </style>
     </head>
     <body>
-        <h1>2D Matrix Transformations</h1>
-        <div id="left">
+        <h1 style="font-size: 1.7em">2D Matrix Transformations</h1>
+        <div style="margin: 0 auto; text-align: center">
             <canvas style="background-color: gray" id="canvas"></canvas>
         </div>
-        <div id="right">
-            <span>Rotation:</span>
-            <input type="range" min="0" max="100" value="0" id="rotation">
-            <br />
-            <span>Scale:</span>
-            <input type="range" min="0" max="100" value="5" id="scale">
-            <br />
-            <span>Reflect</span>
-            <input type="checkbox" id="reflect" />
-            <br />
-            <span>Shear X</span>
-            <input type="range" min="0" max="100" value="70" id="shearX">
-            <br />
-            <span>Shear Y</span>
-            <input type="range" min="0" max="100" value="30" id="shearY">
-            <hr />
-            <p>
-            Controls to move player<br />
-            A: left<br />
-            W: up<br />
-            S: down<br />
-            D: right
-            </p>
+        <div style="width: 550px; margin: 0 auto">
+            <div id="left">
+                <span>Rotation:</span>
+                <input style="width: 120px" type="range" min="0" max="100" value="0" id="rotation">
+                <br />
+                <span>Scale:</span>
+                <input style="width: 120px" type="range" min="0" max="100" value="5" id="scale">
+                <br />
+                <span>Reflect</span>
+                <input type="checkbox" id="reflect" />
+                <br />
+                <span>Shear X</span>
+                <input style="width: 120px" type="range" min="0" max="100" value="70" id="shearX">
+                <br />
+                <span>Shear Y</span>
+                <input style="width: 120px" type="range" min="0" max="100" value="30" id="shearY">
+            </div>
+            <div id="right">
+                Controls to move player<br />
+                A: left<br />
+                W: up<br />
+                S: down<br />
+                D: right
+            </div>
             
         </div>
     </body>
