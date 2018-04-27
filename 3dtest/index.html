@@ -6,17 +6,33 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>3D Rotation</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="vector.js"></script>
+        <style type="text/css">
+            @font-face { font-family: 'joystix'; src: url('PixelMYZ.ttf'); }
+        </style>
+        <style type="text/css">
+            body * {
+                font-family: joystix;
+                font-size: 1.15em;
+                padding: 0;
+                margin: 0;
+            }
+            body {
+                background: #444;
+                color: white;
+            }
+        </style>
         <script>
             var canvas;
             var context;
-            var width = 600;
-            var height = 600;
-            var halfX = width / 2;
-            var halfY = height / 2;
+            var width = 0;
+            var height = 0;
+            var halfX = 0;
+            var halfY = 0;
+            var sideLen = 0;
             var cube;
             var radiansX = 0;
             var radiansY = 0;
@@ -28,9 +44,12 @@ and open the template in the editor.
             
             window.onload = function() {
     
-                //var width = window.screen.width;
-                //var height = window.screen.height;
-                
+                width = window.innerWidth * 0.9;
+                height = window.innerHeight * 0.6;
+                halfX = width / 2;
+                halfY = height / 2;
+                sideLen = height * 0.2;
+            
                 canvas = document.getElementById("canvas");
                 canvas.width = width;
                 canvas.height = height;
@@ -72,16 +91,16 @@ and open the template in the editor.
             class Cube {
                 
                 constructor() {
-                    this.upLeftFront = new Vector(-50, 50, 0);
-                    this.upRightFront = new Vector(50, 50, 0);
-                    this.downRightFront = new Vector(50, -50, 0);
-                    this.downLeftFront = new Vector(-50, -50, 0);
+                    this.upLeftFront = new Vector(-sideLen, sideLen, 0);
+                    this.upRightFront = new Vector(sideLen, sideLen, 0);
+                    this.downRightFront = new Vector(sideLen, -sideLen, 0);
+                    this.downLeftFront = new Vector(-sideLen, -sideLen, 0);
                     
                     
-                    this.upLeftBack = new Vector(-50, 50, 50);
-                    this.upRightBack = new Vector(50, 50, 50);
-                    this.downRightBack = new Vector(50, -50, 50);
-                    this.downLeftBack = new Vector(-50, -50, 50);
+                    this.upLeftBack = new Vector(-sideLen, sideLen, sideLen);
+                    this.upRightBack = new Vector(sideLen, sideLen, sideLen);
+                    this.downRightBack = new Vector(sideLen, -sideLen, sideLen);
+                    this.downLeftBack = new Vector(-sideLen, -sideLen, sideLen);
                 }
                 
                 
@@ -104,6 +123,7 @@ and open the template in the editor.
                     downLeftFront = rotateY(downLeftFront.x, downLeftFront.y, downLeftFront.z);
                     downLeftFront = rotateZ(downLeftFront.x, downLeftFront.y, downLeftFront.z);
                     
+                    context.strokeStyle = "#fff";
                     context.beginPath();
                     var ratio = 300 / (300 + upLeftFront.z); 
                     context.moveTo(halfX + upLeftFront.x * ratio, halfY - upLeftFront.y  * ratio);
@@ -178,34 +198,34 @@ and open the template in the editor.
             }
             
             var rotationMatrixX = [
-                1,           0,                          0,
-                0, Math.cos(0),  Math.cos(0 + Math.PI / 2),
-                0, Math.sin(0),  Math.sin(0 + Math.PI / 2)
+                1,            0,             0,
+                0,  Math.cos(0),   Math.sin(0),
+                0, -Math.sin(0),   Math.cos(0)
             ];
             
             var rotationMatrixY = [
-                Math.cos(0),  0, Math.cos(0 + Math.PI / 2),
-                0,            1,                         0,
-                Math.sin(0),  0, Math.sin(0 + Math.PI / 2)
+                Math.cos(0),  0, -Math.sin(0),
+                0,            1,            0,
+                Math.sin(0),  0,  Math.cos(0)
             ];
             
             var rotationMatrixZ = [
-                Math.cos(0),  Math.cos(0 + Math.PI / 2), 0,
-                Math.sin(0),  Math.sin(0 + Math.PI / 2), 0,
-                0,            0,                         1
+                 Math.cos(0),   Math.sin(0), 0,
+                -Math.sin(0),   Math.cos(0), 0,
+                0,                        0, 1
             ];
             
             function setRotationX(radians) {
                 /*
                     Matrix
-                    [1,      0,               0] [x]
-                    [0, cos(0), cos(0 + PI / 2)] [y]
-                    [0, sin(0), sin(0 + PI / 2)] [z]
+                    [1,      0,       0] [x]
+                    [0,  cos(0), sin(0)] [y]
+                    [0, -sin(0), cos(0)] [z]
                  */
                 rotationMatrixX[4] = Math.cos(radians);
-                rotationMatrixX[5] = Math.cos(radians + Math.PI / 2);
-                rotationMatrixX[7] = Math.sin(radians);
-                rotationMatrixX[8] = Math.sin(radians + Math.PI / 2);
+                rotationMatrixX[5] = Math.sin(radians);
+                rotationMatrixX[7] = -Math.sin(radians);
+                rotationMatrixX[8] = Math.cos(radians);
             }
             
             function rotateX(x, y, z) {
@@ -219,14 +239,14 @@ and open the template in the editor.
             function setRotationY(radians) {
                 /*
                     Matrix
-                    [cos(0),  0,  cos(0 + PI / 2)] [x]
-                    [0,       1,                0] [y]
-                    [sin(0),  0,  sin(0 + PI / 2)] [z]
+                    [cos(0),  0, -sin(0)] [x]
+                    [0,       1,       0] [y]
+                    [sin(0),  0,  cos(0)] [z]
                  */
                 rotationMatrixY[0] = Math.cos(radians);
-                rotationMatrixY[2] = Math.cos(radians + Math.PI / 2);
+                rotationMatrixY[2] = -Math.sin(radians);
                 rotationMatrixY[6] = Math.sin(radians);
-                rotationMatrixY[8] = Math.sin(radians + Math.PI / 2);
+                rotationMatrixY[8] = Math.cos(radians);
             }
             
             function rotateY(x, y, z) {
@@ -240,14 +260,14 @@ and open the template in the editor.
             function setRotationZ(radians) {
                 /*
                     Matrix
-                    [cos(0),  cos(0 + PI / 2),  0] [x]
-                    [sin(0),  sin(0 + PI / 2),  0] [y]
-                    [0,       0,                1] [z]
+                    [cos(0),  sin(0),  0] [x]
+                    [-sin(0), cos(0),  0] [y]
+                    [0,       0,       1] [z]
                  */
                 rotationMatrixZ[0] = Math.cos(radians);
-                rotationMatrixZ[1] = Math.cos(radians + Math.PI / 2);
-                rotationMatrixZ[3] = Math.sin(radians);
-                rotationMatrixZ[4] = Math.sin(radians + Math.PI / 2);
+                rotationMatrixZ[1] = Math.sin(radians);
+                rotationMatrixZ[3] = -Math.sin(radians);
+                rotationMatrixZ[4] = Math.cos(radians);
             }
             
             function rotateZ(x, y, z) {
@@ -262,16 +282,18 @@ and open the template in the editor.
         </script>
     </head>
     <body>
-        <canvas style="background-color: gray" id="canvas"></canvas>
-        <br />
-        <span>Rotation X:</span>
-            <input type="range" min="0" max="100" value="0" id="rotationX">
-            <br />
-         <span>Rotation Y:</span>
-            <input type="range" min="0" max="100" value="0" id="rotationY">
-            <br />
-         <span>Rotation Z:</span>
-            <input type="range" min="0" max="100" value="0" id="rotationZ">
-            <br />
+        <div style="; margin: 0 auto; text-align: center">
+            <canvas style="background-color: black;" id="canvas"></canvas>
+        </div>
+        <div style="width: 250px; margin: 0 auto">
+            <span>Rotation X axis:</span>
+                <input style="width: 120px" type="range" min="0" max="100" value="0" id="rotationX">
+                <br />
+             <span>Rotation Y axis:</span>
+                <input style="width: 120px" type="range" min="0" max="100" value="0" id="rotationY">
+                <br />
+             <span>Rotation Z axis:</span>
+                <input style="width: 120px" type="range" min="0" max="100" value="0" id="rotationZ">
+        </div>
     </body>
 </html>
