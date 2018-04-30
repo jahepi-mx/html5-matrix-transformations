@@ -30,47 +30,47 @@ class Tile {
 
     render(context) {
         var matrix = TransformationMatrix.getInstance();
-
+        /*
         var cameraVector = matrix.rotate(this.camera.getX(), this.camera.getY());
         cameraVector = matrix.scale(cameraVector.x, cameraVector.y);
         cameraVector = matrix.shearX(cameraVector.x, cameraVector.y);
         cameraVector = matrix.shearY(cameraVector.x, cameraVector.y);
         cameraVector = matrix.reflect(cameraVector.x, cameraVector.y);
-
+        */
         var halfX = this.config.canvasWidth / 2;
         var halfY = this.config.canvasHeight / 2;
 
         // Transformations from origin
-        var leftUpVector = matrix.rotate(this.leftUpVector.x - halfX, this.leftUpVector.y - halfY);
+        var leftUpVector = matrix.rotate(this.leftUpVector.x + this.camera.getX() - halfX, this.leftUpVector.y + this.camera.getY() - halfY);
         leftUpVector = matrix.scale(leftUpVector.x, leftUpVector.y);
         leftUpVector = matrix.shearX(leftUpVector.x, leftUpVector.y);
         leftUpVector = matrix.shearY(leftUpVector.x, leftUpVector.y);
         leftUpVector = matrix.reflect(leftUpVector.x, leftUpVector.y);
 
-        var rightUpVector = matrix.rotate(this.rightUpVector.x - halfX, this.rightUpVector.y - halfY);
+        var rightUpVector = matrix.rotate(this.rightUpVector.x + this.camera.getX() - halfX, this.rightUpVector.y + this.camera.getY() - halfY);
         rightUpVector = matrix.scale(rightUpVector.x, rightUpVector.y);
         rightUpVector = matrix.shearX(rightUpVector.x, rightUpVector.y);
         rightUpVector = matrix.shearY(rightUpVector.x, rightUpVector.y);
         rightUpVector = matrix.reflect(rightUpVector.x, rightUpVector.y);
 
-        var rightDownVector = matrix.rotate(this.rightDownVector.x - halfX, this.rightDownVector.y - halfY);
+        var rightDownVector = matrix.rotate(this.rightDownVector.x + this.camera.getX() - halfX, this.rightDownVector.y + this.camera.getY() - halfY);
         rightDownVector = matrix.scale(rightDownVector.x, rightDownVector.y);
         rightDownVector = matrix.shearX(rightDownVector.x, rightDownVector.y);
         rightDownVector = matrix.shearY(rightDownVector.x, rightDownVector.y);
         rightDownVector = matrix.reflect(rightDownVector.x, rightDownVector.y);
 
-        var leftDownVector = matrix.rotate(this.leftDownVector.x - halfX, this.leftDownVector.y - halfY);
+        var leftDownVector = matrix.rotate(this.leftDownVector.x + this.camera.getX() - halfX, this.leftDownVector.y + this.camera.getY() - halfY);
         leftDownVector = matrix.scale(leftDownVector.x, leftDownVector.y);
         leftDownVector = matrix.shearX(leftDownVector.x, leftDownVector.y);
         leftDownVector = matrix.shearY(leftDownVector.x, leftDownVector.y);
         leftDownVector = matrix.reflect(leftDownVector.x, leftDownVector.y);
 
         context.beginPath();
-        context.moveTo(halfX + leftUpVector.x + cameraVector.x, halfY + leftUpVector.y + cameraVector.y);
-        context.lineTo(halfX + rightUpVector.x + cameraVector.x, halfY + rightUpVector.y + cameraVector.y);
-        context.lineTo(halfX + rightDownVector.x + cameraVector.x, halfY + rightDownVector.y + cameraVector.y);
-        context.lineTo(halfX + leftDownVector.x + cameraVector.x, halfY + leftDownVector.y + cameraVector.y);
-        context.lineTo(halfX + leftUpVector.x + cameraVector.x, halfY + leftUpVector.y + cameraVector.y);
+        context.moveTo(halfX + leftUpVector.x, halfY + leftUpVector.y);
+        context.lineTo(halfX + rightUpVector.x, halfY + rightUpVector.y);
+        context.lineTo(halfX + rightDownVector.x, halfY + rightDownVector.y);
+        context.lineTo(halfX + leftDownVector.x, halfY + leftDownVector.y);
+        context.lineTo(halfX + leftUpVector.x, halfY + leftUpVector.y);
         context.stroke();
 
         context.fillStyle = this.walkable ? "#000" : "#fff";
