@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+         
+         var width = 400;
+         var height = 400;
+         var halfX = width / 2;
+         var halfY = height / 2;
+         var canvas;
+         var deltatime;
+         var prevTime = 0;
+         var context;
+         var camera = [0, 0];
+         var mapWidth = 7;
+         var mapHeight = 5;
+         var tileSize = 40;
+         var text;
+         var map = [
+             1,1,1,1,1,1,1,
+             1,0,0,0,1,0,1,
+             1,0,0,0,1,0,1,
+             1,0,0,0,1,0,1,
+             1,0,0,0,1,0,1,
+         ]
+         var tiles = [];
+         
+         var matrix = [
+             Math.cos(45), Math.sin(45),
+             Math.sin(-45), Math.cos(45),
+         ];
+         
+         window.onload = function() {
+             document.onkeydown = onKeyDown;
+             document.onkeyup = onKeyUp;
+             text = document.getElementById("text");
+             canvas = document.getElementById("canvas");
+             context = canvas.getContext('2d');
+             for (var a = 0; a < mapWidth * mapHeight; a++) {
+                 tiles.push(new Tile(a % mapWidth, Math.floor(a / mapWidth), tileSize, map[a]));
+             }
+             camera[0] = 4 * tileSize - tileSize / 2;
+             camera[1] = 3 * tileSize - tileSize / 2;
+             window.requestAnimationFrame(render);
+         };   
+            
+         var velX = 0, velY = 0;
+         var rad = Math.PI / 4;
+         function render(time) {
+             context.clearRect(0, 0, canvas.width, canvas.height);
+             context.imageSmoothingEnabled = false;
+             
+             deltatime = (time - prevTime) / 1000;
+             
+             if (cup) velY = 50;
+             if (cdown) velY = -50;
+             if (cleft) velX = 50;
+             if (cright) velX = -50;
+             if (rotd) {
+                 
+             }
+             if (rotu) {
+                 rad += Math.PI * deltatime;
+             }
+             
+             if (rotd) {
+                 rad -= Math.PI * deltatime;
+             }
+             
+             matrix = [
+                Math.cos(rad), Math.sin(rad),
+                Math.sin(-rad), Math.cos(rad),
+            ];
+             
+             camera[0] += velX * deltatime;
+             camera[1] += velY * deltatime;
+             velX *= 0.95;
+             velY *= 0.95;
+             
+             prevTime = time;
+             for (let tile of tiles) {
+                 tile.render(context);
+             }
+             text.innerHTML = "x:" + camera[0] / tileSize + " y:" + camera[1] / tileSize;
+             
+             context.beginPath();
+             context.moveTo(width/2,0);
+             context.lineTo(width/2,height);
+             context.stroke();
+             
+             context.beginPath();
+             context.moveTo(0,height/2);
+             context.lineTo(width,height/2);
+             context.stroke();
+             
+             window.requestAnimationFrame(render);
+         }
+         
+         class Tile {
+             
+             constructor(x, y, size, type) {
+                 this.x = x;
+                 this.y = y;
+                 this.type = type;
+                 this.size = size;
+                 this.half = this.size / 2;
+                 this.pos = [this.x * size + this.half, this.y * size + this.half];
+                 this.leftUp = [this.pos[0] - this.half, this.pos[1] - this.half];
+                 this.leftBottom = [this.pos[0] - this.half, this.pos[1] + this.half];
+                 this.rightUp = [this.pos[0] + this.half, this.pos[1] - this.half];
+                 this.rightBottom = [this.pos[0] + this.half, this.pos[1] + this.half];
+             }
+             
+             render(context) {
+               
+                context.beginPath();
+                
+                var x = halfX - camera[0] + this.leftUp[0];
+                var y = halfY - camera[1] + this.leftUp[1];
+                x = x - halfX;
+                y = y - halfY;
+                
+                var xx = x * matrix[0] + y * matrix[2];
+                var yy = x * matrix[1] + y * matrix[3];
+                
+                //context.moveTo(halfX - camera[0] + this.leftUp[0], halfY - camera[1] + this.leftUp[1]);
+                context.moveTo(halfX + xx, halfY + yy);
+                
+                x = halfX - camera[0] + this.rightUp[0];
+                y = halfY - camera[1] + this.rightUp[1];
+                x = x - halfX;
+                y = y - halfY;
+                
+                xx = x * matrix[0] + y * matrix[2];
+                yy = x * matrix[1] + y * matrix[3];
+                
+                context.lineTo(halfX + xx, halfY + yy);
+                
+                x = halfX - camera[0] + this.rightBottom[0];
+                y = halfY - camera[1] + this.rightBottom[1];
+                x = x - halfX;
+                y = y - halfY;
+                
+                xx = x * matrix[0] + y * matrix[2];
+                yy = x * matrix[1] + y * matrix[3];
+                
+                context.lineTo(halfX + xx, halfY + yy);
+                
+                x = halfX - camera[0] + this.leftBottom[0];
+                y = halfY - camera[1] + this.leftBottom[1];
+                x = x - halfX;
+                y = y - halfY;
+                
+                xx = x * matrix[0] + y * matrix[2];
+                yy = x * matrix[1] + y * matrix[3];
+                
+                context.lineTo(halfX + xx, halfY  + yy);
+                
+                x = halfX - camera[0] + this.leftUp[0];
+                y = halfY - camera[1] + this.leftUp[1];
+                x = x - halfX;
+                y = y - halfY;
+                
+                xx = x * matrix[0] + y * matrix[2];
+                yy = x * matrix[1] + y * matrix[3];
+                
+                context.lineTo(halfX + xx, halfY + yy);
+                context.stroke();
+
+                context.fillStyle = this.type === 1 ? "#000" : "#fff";
+                context.fill();
+             }
+         }
+         
+         var cleft = false;
+         var cright = false;
+         var cup = false;
+         var cdown = false;
+         var rotd = false;
+         var rotu = false;
+         function onKeyDown(event) {
+            var evt = event || window.event;
+
+            if (evt.keyCode === 77) { // left
+                rotd= true;
+            }
+            if (evt.keyCode === 78) { // right
+                rotu = true;
+            }
+            if (evt.keyCode === 65) { // left
+                cleft= true;
+            }
+            if (evt.keyCode === 68) { // right
+                cright = true;
+            }
+            if (evt.keyCode === 87) { // up
+                cup = true;
+            }
+            if (evt.keyCode === 83) { // down
+                cdown = true;
+            }
+        }
+
+        function onKeyUp(event) {
+            var evt = event || window.event;
+            if (evt.keyCode === 77) { // left
+                rotd= false;
+            }
+            if (evt.keyCode === 78) { // right
+                rotu = false;
+            }
+            if (evt.keyCode === 65) { // left
+                cleft = false;
+            }
+            if (evt.keyCode === 68) { // right
+                cright = false;
+            }
+            if (evt.keyCode === 87) { // up
+                cup = false;
+            }
+            if (evt.keyCode === 83) { // down
+                cdown = false;
+            }
+        }
+        </script>
+        
+    </head>
+    <body>
+        <canvas id="canvas" width="400" height="400" style="border: 1px solid black"></canvas>
+        <div id="text"></div>
+    </body>
+</html>
