@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>2D Engine</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="vector.js"></script>
+        <script type="text/javascript" src="player.js"></script>
+        <script type="text/javascript" src="tile.js"></script>
+        <script>
+            var screenWidth = 400;
+            var screenHeight = 400;
+            var origX = 0;
+            var origY = screenHeight;
+            var halfScreenX = screenWidth / 2;
+            var halfScreenY = screenHeight / 2;
+            var prevTime = 0;
+            var canvas, context;
+            var mapHeight = 9;
+            var mapWidth = 9;
+            var tileSize = 50;
+            var camera;
+            var map = [
+                1,1,1,1,1,1,1,1,1,
+                1,1,0,0,0,0,0,0,1,
+                1,0,0,0,0,0,0,0,1,
+                1,0,0,0,0,0,0,0,1,
+                1,0,0,0,0,0,0,0,1,
+                1,0,0,0,0,0,0,0,1,
+                1,0,0,0,0,0,0,0,1,
+                1,0,1,0,0,0,1,0,1,
+                1,1,1,1,1,1,1,1,1,
+            ];
+            var tiles = [];
+            var player = new Player(7, 2);
+            window.onload = function() {
+                canvas = document.getElementById("canvas");
+                context = canvas.getContext("2d");
+                canvas.width = screenWidth;
+                canvas.height = screenHeight;
+                camera = new Vector(0, 0);
+                for (var a = 0; a < mapWidth * mapHeight; a++) {
+                    var x = a % mapWidth;
+                    var y = parseInt(a / mapWidth);
+                    var value = map[y * mapWidth + x];
+                    var newY = (mapHeight - 1) - y;
+                    tiles[newY * mapWidth + x] = new Tile(x, newY, value);
+                }
+                document.onkeydown = onKeyDown;
+                document.onkeyup = onKeyUp;
+                requestAnimationFrame(update);
+            };
+            
+            function update(time) {
+                var dt = (time - prevTime) / 1000;
+                prevTime = time;
+                
+                // Camera offsets
+                if (player.position.x < halfScreenX) {
+                    camera.x = 0;
+                } else if (player.position.x > mapWidth * tileSize - halfScreenX) {
+                    camera.x = halfScreenX - (mapWidth * tileSize - halfScreenX);
+                } else {
+                    camera.x = halfScreenX - player.position.x;
+                }
+                
+                if (player.position.y < halfScreenY) {
+                    camera.y = 0;
+                } else if (player.position.y > mapHeight * tileSize - halfScreenY) {
+                    camera.y = halfScreenY - (mapHeight * tileSize - halfScreenY);
+                } else {
+                    camera.y = halfScreenY - player.position.y;
+                }
+
+                var matrix = getRotationMatrix(Math.PI / 8);
+                for (let tile of tiles) {
+                    tile.update(dt);
+                    tile.render(context, matrix);
+                }
+                
+                player.update(dt);
+                player.render(context, matrix);
+                
+                requestAnimationFrame(update);
+            }
+            
+            function onKeyDown(evt) {
+                if (evt.keyCode === 38) player.up(true);
+                if (evt.keyCode === 37) player.left(true);
+                if (evt.keyCode === 40) player.down(true);
+                if (evt.keyCode === 39) player.right(true);
+            }
+            
+            function onKeyUp(evt) {
+                if (evt.keyCode === 38) player.up(false);
+                if (evt.keyCode === 37) player.left(false);
+                if (evt.keyCode === 40) player.down(false);
+                if (evt.keyCode === 39) player.right(false);
+            }
+        </script>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+    </body>
+</html>
