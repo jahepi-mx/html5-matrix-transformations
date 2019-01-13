@@ -12,11 +12,18 @@ class Player {
         this.upRight = new Vector(half, half);
         this.upLeft = new Vector(-half, half);
         this.velocity = new Vector(0, 0);
-        this.velocityTmp = new Vector(100, 100);
+        this.velocityTmp = new Vector(100, 400);
+        this.gravity = new Vector(0, -10);
         this.friction = 0.95;
+        this.leftc = this.rightc = this.upc = this.downc = false;
     }
     
     update(dt) { 
+        if (this.upc) this.velocity.y = this.velocityTmp.y;
+        if (this.downc) this.velocity.y = -this.velocityTmp.y;
+        if (this.leftc) this.velocity.x = -this.velocityTmp.x;
+        if (this.rightc) this.velocity.x = this.velocityTmp.x;
+        
         var tmpPosition = new Vector(this.position.x, this.position.y);
         this.position.x += this.velocity.x * dt;
         var x = parseInt(this.position.x / tileSize);
@@ -40,6 +47,7 @@ class Player {
         
         if (collide) {
             this.position.x = tmpPosition.x;
+            this.velocity.x *= -1;
         }
         
         tmpPosition = new Vector(this.position.x, this.position.y);
@@ -65,10 +73,11 @@ class Player {
         
         if (collide) {
             this.position.y = tmpPosition.y;
+            this.velocity.y *= -1;
         }
         
-        //this.position = this.position.add(this.velocity.mul(dt));
         this.velocity = this.velocity.mul(this.friction);
+        this.velocity = this.velocity.add(this.gravity);
     }
     
     render(context, matrix) {
@@ -103,19 +112,19 @@ class Player {
     }
     
     up(bool) {
-        if (bool) this.velocity.y = this.velocityTmp.y;
+        this.upc = bool;
     }
     
     down(bool) {
-        if (bool) this.velocity.y = -this.velocityTmp.y;
+        this.downc = bool;
     }
     
     left(bool) {
-        if (bool) this.velocity.x = -this.velocityTmp.x;
+        this.leftc = bool;
     }
     
     right(bool) {
-        if (bool) this.velocity.x = this.velocityTmp.x;
+        this.rightc = bool;
     }
 }
 
